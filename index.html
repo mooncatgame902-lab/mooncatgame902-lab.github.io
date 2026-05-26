@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gary Studio</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.3.0/dist/tabler-icons.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --teal-50: #E1F5EE;
+      --teal-800: #085041;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      color: #e8eaf0;
+      background: #0d0f14;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* Global canvas background */
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* NAV */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 56px;
+      background: rgba(13,15,20,0.7);
+      border-bottom: 0.5px solid rgba(255,255,255,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+    .nav-logo {
+      font-size: 17px;
+      font-weight: 500;
+      letter-spacing: -0.3px;
+      color: #ffffff;
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 4px; }
+    .nav-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      color: rgba(255,255,255,0.5);
+      padding: 6px 14px;
+      border-radius: var(--radius-md);
+      transition: background 0.15s, color 0.15s;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.07); color: #ffffff; }
+    .nav-btn.active { color: #ffffff; font-weight: 500; background: rgba(255,255,255,0.1); }
+
+    /* LAYOUT */
+    .page {
+      display: none;
+      padding: 2.5rem 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .page.active { display: block; }
+
+    /* HOME */
+    #page-home {
+      display: none;
+      padding: 0;
+      max-width: 100%;
+      margin: 0;
+      position: relative;
+      z-index: 1;
+      min-height: calc(100vh - 56px);
+    }
+    #page-home.active { display: block; }
+
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 56px);
+      text-align: center;
+      padding: 3rem 2rem;
+    }
+    .hero-badge {
+      display: inline-block;
+      padding: 5px 16px;
+      font-size: 13px;
+      background: rgba(255,255,255,0.06);
+      border: 0.5px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 1.5rem;
+      backdrop-filter: blur(6px);
+    }
+    .hero-title {
+      font-size: 52px;
+      font-weight: 500;
+      letter-spacing: -1px;
+      color: #ffffff;
+      margin-bottom: 1rem;
+    }
+    .hero-sub {
+      font-size: 16px;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.7;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* SECTION HEADER */
+    .section-title { font-size: 20px; font-weight: 500; margin-bottom: 0.4rem; color: #ffffff; }
+    .section-sub   { font-size: 14px; color: rgba(255,255,255,0.45); margin-bottom: 2rem; }
+
+    /* MEMBERS */
+    .members-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .member-card {
+      background: rgba(255,255,255,0.05);
+      border: 0.5px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem 1.25rem;
+      text-align: center;
+      transition: border-color 0.15s, background 0.15s;
+      backdrop-filter: blur(8px);
+    }
+    .member-card:hover {
+      border-color: rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.08);
+    }
+    .member-avatar {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 0 auto 1rem;
+      display: block;
+    }
+    .member-avatar-placeholder {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      border: 1.5px dashed rgba(255,255,255,0.2);
+      margin: 0 auto 1rem;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.3); font-size: 28px;
+    }
+    .member-name { font-size: 15px; font-weight: 500; margin-bottom: 4px; color: #ffffff; }
+    .member-role { font-size: 13px; color: rgba(255,255,255,0.45); }
+
+    /* TIMELINE */
+    .timeline { position: relative; padding-left: 2rem; }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 7px; top: 10px; bottom: 10px;
+      width: 1px;
+      background: rgba(255,255,255,0.1);
+    }
+    .timeline-item { position: relative; margin-bottom: 1.75rem; }
+    .timeline-dot {
+      position: absolute;
+      left: -2rem; top: 4px;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: #0d0f14;
+      border: 2px solid rgba(255,255,255,0.25);
+    }
+    .timeline-dot.latest { border-color: #1D9E75; background: #1D9E75; }
+    .timeline-date { font-size: 12px; color: rgba(255,255,255,0.3); margin-bottom: 6px; }
+    .timeline-card {
+      background: rgba(255,255,255,0.05);
+      border: 0.5px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-lg);
+      padding: 1rem 1.25rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      backdrop-filter: blur(8px);
+    }
+    .timeline-info { flex: 1; min-width: 0; }
+    .timeline-version { font-size: 14px; font-weight: 500; color: #ffffff; }
+    .timeline-desc { font-size: 13px; color: rgba(255,255,255,0.45); margin-top: 3px; }
+    .version-badge {
+      display: inline-block;
+      font-size: 11px; padding: 2px 10px;
+      border-radius: 999px; margin-left: 8px;
+      vertical-align: middle; font-weight: 500;
+    }
+    .badge-latest { background: var(--teal-50); color: var(--teal-800); }
+    .badge-old    { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.4); }
+    .dl-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px;
+      border-radius: var(--radius-md);
+      border: 0.5px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.05);
+      font-family: var(--font-sans); font-size: 13px;
+      color: #e8eaf0; cursor: pointer;
+      white-space: nowrap; text-decoration: none;
+      transition: background 0.15s;
+    }
+    .dl-btn:hover { background: rgba(255,255,255,0.1); }
+
+    /* CONTACT — no card, just text + link */
+    .contact-body {
+      font-size: 15px;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.8;
+      margin-bottom: 1.75rem;
+    }
+    .gmail-link {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 9px 20px;
+      border-radius: var(--radius-md);
+      background: rgba(255,255,255,0.07);
+      border: 0.5px solid rgba(255,255,255,0.18);
+      font-family: var(--font-sans); font-size: 14px; font-weight: 500;
+      color: #e8eaf0; text-decoration: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .gmail-link:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.3); }
+  </style>
+</head>
+<body>
+
+<!-- Global particle canvas -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#" onclick="showPage('home',0);return false;">Gary Studio</a>
+  <div class="nav-links">
+    <button class="nav-btn active" onclick="showPage('home',0)">Home</button>
+    <button class="nav-btn"        onclick="showPage('members',1)">Members</button>
+    <button class="nav-btn"        onclick="showPage('news',2)">News</button>
+    <button class="nav-btn"        onclick="showPage('contact',3)">Contact</button>
+  </div>
+</nav>
+
+<!-- HOME -->
+<div id="page-home" class="page active">
+  <div class="hero-content">
+    <h1 class="hero-title">Gary Studio</h1>
+    <p class="hero-sub">
+      A multidisciplinary creative studio focused on thoughtful design,
+      technology, and storytelling that resonates with people.
+    </p>
+  </div>
+</div>
+
+<!-- MEMBERS -->
+<div id="page-members" class="page">
+  <p class="section-title">Members</p>
+  <p class="section-sub">The people who make things happen at Gary Studio.</p>
+  <div class="members-grid">
+
+    <div class="member-card">
+      <img class="member-avatar" src="images/profile1.png" alt="Gary Chang" />
+      <p class="member-name">Gary Chang</p>
+      <p class="member-role">Chief Executive Officer</p>
+    </div>
+
+    <div class="member-card">
+      <img class="member-avatar" src="images/profile2.png" alt="Cheng-Hao Tsai" />
+      <p class="member-name">Cheng-Hao Tsai</p>
+      <p class="member-role">Game Designer</p>
+    </div>
+
+    <div class="member-card">
+      <img class="member-avatar" src="images/profile3.jpg" alt="Hubert Huang" />
+      <p class="member-name">Hubert Huang</p>
+      <p class="member-role">Software Engineer</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- NEWS -->
+<div id="page-news" class="page">
+  <p class="section-title">News</p>
+  <p class="section-sub">Latest updates and announcements from Gary Studio.</p>
+
+  <div class="timeline">
+    <!-- News 1 (latest) -->
+    <div class="timeline-item">
+      <div class="timeline-dot latest"></div>
+      <p class="timeline-date">May 2026</p>
+      <div class="timeline-card">
+        <div class="timeline-info">
+          <p class="timeline-version">
+            CEO Photo Available
+            <span class="version-badge badge-latest">New</span>
+          </p>
+          <p class="timeline-desc">The photo of CEO Gary Chang is now available for download.</p>
+        </div>
+        <a class="dl-btn" href="images/ceo_photo.png" download>
+          <i class="ti ti-download" aria-hidden="true"></i> Download
+        </a>
+      </div>
+    </div>
+
+    <!-- News 2 -->
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <p class="timeline-date">May 2026</p>
+      <div class="timeline-card">
+        <div class="timeline-info">
+          <p class="timeline-version">
+            The establishment of Gary Studio
+          </p>
+          <p class="timeline-desc">Gary Studio was established on May 21, 2026.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CONTACT -->
+<div id="page-contact" class="page">
+  <p class="section-title">Contact</p>
+  <p class="section-sub">We're always happy to hear from collaborators, clients, and curious minds.</p>
+  <p class="contact-body">
+    If you have any questions about our project or would like to collaborate,
+    feel free to reach out — we'd love to connect with you.
+  </p>
+  <a class="gmail-link" href="mailto:mooncatgame902@gmail.com">
+    <i class="ti ti-mail" aria-hidden="true" style="font-size:17px;"></i>
+    mooncatgame902@gmail.com
+  </a>
+</div>
+
+<!-- SCRIPT -->
+<script>
+  const btns = document.querySelectorAll('.nav-btn');
+
+  function showPage(id, idx) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    btns.forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    btns[idx].classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* ── Global particle / node network ── */
+  (function () {
+    const canvas = document.getElementById('bg-canvas');
+    const ctx    = canvas.getContext('2d');
+
+    function resize() {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const COUNT    = 90;
+    const MAX_DIST = 130;
+
+    const nodes = Array.from({ length: COUNT }, () => ({
+      x:  Math.random() * window.innerWidth,
+      y:  Math.random() * window.innerHeight,
+      vx: (Math.random() - 0.5) * 0.35,
+      vy: (Math.random() - 0.5) * 0.35,
+      r:  Math.random() * 1.6 + 0.7,
+    }));
+
+    const mouse = { x: -9999, y: -9999 };
+    window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+    window.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; });
+
+    function tick() {
+      requestAnimationFrame(tick);
+
+      /* background */
+      const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      grad.addColorStop(0,   '#0d0f14');
+      grad.addColorStop(0.5, '#0a1020');
+      grad.addColorStop(1,   '#0d1218');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      /* update positions */
+      for (const n of nodes) {
+        n.x += n.vx;
+        n.y += n.vy;
+        if (n.x < 0 || n.x > canvas.width)  n.vx *= -1;
+        if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
+      }
+
+      /* edges between nodes */
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx = nodes[i].x - nodes[j].x;
+          const dy = nodes[i].y - nodes[j].y;
+          const d  = Math.sqrt(dx*dx + dy*dy);
+          if (d < MAX_DIST) {
+            ctx.beginPath();
+            ctx.moveTo(nodes[i].x, nodes[i].y);
+            ctx.lineTo(nodes[j].x, nodes[j].y);
+            ctx.strokeStyle = `rgba(100,180,255,${(1 - d / MAX_DIST) * 0.22})`;
+            ctx.lineWidth = 0.6;
+            ctx.stroke();
+          }
+        }
+      }
+
+      /* mouse attraction lines */
+      for (const n of nodes) {
+        const dx = n.x - mouse.x;
+        const dy = n.y - mouse.y;
+        const d  = Math.sqrt(dx*dx + dy*dy);
+        if (d < 180) {
+          ctx.beginPath();
+          ctx.moveTo(n.x, n.y);
+          ctx.lineTo(mouse.x, mouse.y);
+          ctx.strokeStyle = `rgba(140,210,255,${(1 - d / 180) * 0.45})`;
+          ctx.lineWidth = 0.8;
+          ctx.stroke();
+        }
+      }
+
+      /* nodes */
+      for (const n of nodes) {
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(120,200,255,0.65)';
+        ctx.fill();
+      }
+    }
+
+    tick();
+  })();
+</script>
+</body>
+</html>
