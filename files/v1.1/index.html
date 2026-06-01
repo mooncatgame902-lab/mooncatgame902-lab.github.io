@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Testing Game</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ===================== 標題 / 大廳 ===================== -->
+  <section id="title-screen" class="screen active">
+    <div class="lobby-wrap">
+      <div class="lobby-title">
+        <div class="banner">輪 迴 尖 塔</div>
+        <p class="sub dim" style="margin-top:10px">死亡不是終點，而是新一輪的開始</p>
+      </div>
+
+      <div class="lobby-top">
+        <!-- 左：冒險模式 -->
+        <div class="mode-card frame">
+          <h2 style="letter-spacing:4px">冒險模式</h2>
+          <div class="skull-emblem ic-skull"></div>
+          <p class="dim" style="line-height:1.9">深入地下城，擊敗敵人，<br>收集卡牌，打造屬於你的流派，<br>挑戰未知的終點。</p>
+          <div class="hairline" style="width:60%;margin:6px 0"></div>
+          <small class="note">唯一模式</small>
+        </div>
+
+        <!-- 右：進化方向 + 當前職業 -->
+        <div class="lobby-right">
+          <div class="frame" style="padding:18px">
+            <h3 class="center" style="letter-spacing:3px">卡牌決定進化方向</h3>
+            <div class="evo-cards">
+              <div class="evo-card">⚔</div>
+              <div class="evo-card">🛡</div>
+              <div class="evo-card">✦</div>
+              <div class="evo-card">🜂</div>
+              <div class="evo-card">…</div>
+            </div>
+            <p class="dim center" style="font-size:14px">在冒險中獲得卡牌，組合與選擇將影響你的能力強化與戰鬥風格。</p>
+          </div>
+          <div class="frame" style="padding:18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <h3 style="letter-spacing:3px">當前職業</h3>
+            <div class="class-emblem">⚔</div>
+            <div class="banner" style="font-size:20px;padding:6px 26px">戰 士</div>
+            <p class="dim center" style="font-size:14px;margin-top:8px">擅長近戰攻擊與防禦，<br>以強大的力量與堅韌的意志碾碎敵人。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 開始冒險 -->
+      <div class="lobby-bottom">
+        <button class="btn primary" id="title-start">開 始 冒 險</button>
+      </div>
+
+      <!-- 底部功能列 -->
+      <div class="lobby-footer">
+        <div class="row gap">
+          <button class="btn" onclick="window.alert('設定：音量、畫面等（示意）')">⚙ 設定</button>
+          <button class="btn" id="title-continue">📁 讀檔</button>
+        </div>
+        <div class="row gap">
+          <button class="btn" onclick="openCodex()">📖 卡牌圖鑑</button>
+          <button class="btn" onclick="window.close && window.close()">⮐ 離開遊戲</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 選擇角色 ===================== -->
+  <section id="charselect" class="screen">
+    <div class="topbar"><b style="letter-spacing:4px">選擇你的角色</b></div>
+    <div id="char-grid" class="grid-pick" style="flex:1;align-content:center"></div>
+    <div class="lobby-footer" style="padding:18px">
+      <button class="btn" id="char-back">← 返回</button>
+      <button class="btn primary" id="char-confirm" disabled>確認 →</button>
+    </div>
+  </section>
+
+  <!-- ===================== 選擇存檔 ===================== -->
+  <section id="saveselect" class="screen">
+    <div class="topbar"><b style="letter-spacing:4px">選擇存檔格子</b></div>
+    <div id="slot-list" style="flex:1;display:flex;flex-direction:column;justify-content:center"></div>
+    <div class="lobby-footer" style="padding:18px">
+      <button class="btn" id="slot-back">← 返回</button>
+      <span></span>
+    </div>
+  </section>
+
+  <!-- ===================== 初始劇情 ===================== -->
+  <section id="story" class="screen" style="align-items:center;justify-content:center;gap:30px;padding:60px">
+    <div class="frame" style="max-width:760px;padding:40px;text-align:center">
+      <p id="story-text" style="font-size:22px;line-height:2.2"></p>
+    </div>
+    <button class="btn primary" id="story-next">繼續 →</button>
+  </section>
+
+  <!-- ===================== 城市 ===================== -->
+  <section id="city" class="screen">
+    <div class="topbar" style="justify-content:center;gap:30px">
+      <span class="pill ic-soul"></span><span>靈魂能量 <b id="city-soul">0</b></span>
+      <span class="pill ic-coin"></span><span>金幣 <b id="city-gold">0</b></span>
+      <span class="pill ic-heart"></span><span>生命 <b id="city-hp">0/0</b></span>
+    </div>
+    <div class="banner" style="margin-top:24px">終 點 之 城</div>
+    <div class="city-grid" style="margin-top:10px">
+      <div class="facility frame" id="city-inn"><div class="ic">🛏️</div><h3>旅店</h3><p class="dim">恢復生命與飽食/口渴</p></div>
+      <div class="facility frame" id="city-smith"><div class="ic">⚒️</div><h3>流浪鍛造師</h3><p class="dim">強化卡牌 / 整備牌組</p></div>
+      <div class="facility frame" id="city-shop"><div class="ic">🛍️</div><h3>流浪商人</h3><p class="dim">購買卡牌、飾品與補給</p></div>
+      <div class="facility frame" id="city-guild"><div class="ic">📜</div><h3>冒險者公會 / 背包</h3><p class="dim">查看角色、裝備與飾品</p></div>
+    </div>
+    <button class="btn primary" id="city-dungeon" style="margin-top:24px">進入地下城 ☠</button>
+  </section>
+
+  <!-- ===================== 地圖 ===================== -->
+  <section id="map-screen" class="screen">
+    <div class="topbar" id="map-top"></div>
+    <div class="map-main">
+      <div class="map-side frame" id="map-legend"></div>
+      <div class="map-canvas" id="map-canvas"></div>
+      <div class="map-side frame" id="map-info"></div>
+    </div>
+    <div class="mapfoot">
+      <button class="btn" id="map-reset">↻ 重置路線</button>
+      <div class="path-pre">已選擇路線：<span id="map-selnext"></span></div>
+      <button class="btn primary" id="map-confirm" disabled>確認前進 →</button>
+    </div>
+  </section>
+
+  <!-- ===================== 戰鬥 ===================== -->
+  <section id="combat" class="screen">
+    <div class="cb-top" id="cb-top"></div>
+    <div class="speedbar-wrap">
+      <div class="speedbar" id="speedbar"></div>
+    </div>
+    <div class="cb-arena">
+      <div class="player-side" id="player-side"></div>
+      <div class="enemy-side" id="enemy-side"></div>
+    </div>
+    <div class="cb-bottom">
+      <div class="cb-left">
+        <div class="energy-orb" id="energy-orb">3/3</div>
+        <div class="pile" id="draw-pile">抽牌堆<span class="cnt">0</span></div>
+      </div>
+      <div class="hand" id="hand"></div>
+      <div class="cb-right">
+        <button class="btn end-turn" id="endturn-btn">結束回合</button>
+        <div class="pile" id="discard-pile">棄牌堆<span class="cnt">0</span></div>
+        <div class="pile" id="exhaust-pile">消耗牌堆<span class="cnt">0</span></div>
+      </div>
+    </div>
+    <div class="log-box" id="log-box"></div>
+  </section>
+
+  <!-- ===================== 結算 ===================== -->
+  <section id="settlement" class="screen" style="align-items:center;justify-content:center;padding:40px">
+    <div class="frame" id="settle-body" style="max-width:560px;width:90%;padding:32px"></div>
+  </section>
+
+  <!-- ===================== 彈窗 / 教學 / 提示 ===================== -->
+  <div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+    <div class="modal" id="modal"></div>
+  </div>
+  <div class="tut" id="tutorial"></div>
+  <div class="toast" id="toast"></div>
+
+</div>
+
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
