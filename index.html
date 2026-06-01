@@ -58,6 +58,8 @@
       letter-spacing: -0.3px;
       color: #ffffff;
       text-decoration: none;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
     .nav-links { display: flex; gap: 4px; }
     .nav-btn {
@@ -243,6 +245,14 @@
       transition: border-color 0.15s, background 0.15s;
     }
     .gmail-link:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.3); }
+
+    /* MOBILE */
+    @media (max-width: 480px) {
+      nav { padding: 0 1rem; }
+      .nav-logo { font-size: 15px; }
+      .nav-links { gap: 0; }
+      .nav-btn { padding: 6px 9px; font-size: 13px; }
+    }
   </style>
 </head>
 <body>
@@ -347,7 +357,7 @@
       <div class="timeline-card">
         <div class="timeline-info">
           <p class="timeline-version">
-            The Establishment of Gary Studio
+            The establishment of Gary Studio
           </p>
           <p class="timeline-desc">Gary Studio was established on May 21, 2026.</p>
         </div>
